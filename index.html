@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="https://unpkg.com/rxjs/bundles/rxjs.umd.min.js"></script>
+</head>
+<body>
+
+<input id="input" />
+<span id="text"></span>
+
+<script>
+    const { range, Observable, of, EMPTY } = rxjs;
+    const { map, filter, switchMap, debounceTime, takeUntil, skipUntil, concatAll, catchError, distinctUntilChanged } = rxjs.operators;
+    const { ajax } = rxjs.ajax;
+
+    const input = document.getElementById('input'),
+        text = document.getElementById('text');
+
+    let typingStream = new Observable(subscriber => {
+        input.oninput = e => subscriber.next(e.target.value);
+    });
+
+    const fetchData = value => {
+        return ajax.getJSON('https://api.github.com/search/users?q=' + value).pipe(
+            map(response => response.items),
+            map(value => value.map(v => v.login).join(', ')),
+            catchError(e => of('Error!')),
+        );
+    };
+
+    typingStream = typingStream.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        map(emittedValue => emittedValue.trim()),
+        map(value => value ? fetchData(value) : of('')),
+        concatAll(),
+    );
+
+    typingStream.subscribe(value => text.innerText = value);
+</script>
+</body>
+</html>
