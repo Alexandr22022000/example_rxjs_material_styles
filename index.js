@@ -1,16 +1,34 @@
-const { Observable, Subject, of, interval, pipe  } = require('rxjs');
-const { map, first, concatAll, mergeAll, switchAll, exhaust, multicast } = require('rxjs/operators');
-const { ajax } = require('rxjs/ajax');
+const shit = function (param) {
+    console.log(param);
+    console.log('CALL!');
+    console.log('THIS:', this.q);
+    return "FUNCTION RESULT";
+};
 
+shit.prototype = {
+    q: 'PARAM OF NEW OBJ',
+};
 
+shit.param = 'PARAM OF MAIN OBJ';
 
-ajax('https://jsonplaceholder.typicode.com/todos/1').subscribe(console.log)
-// {request, response: {userId, id, title, completed}, responseType, status}
+console.log(new shit('PARAM 1').q);
+console.log(shit('PARAM 2'));
+console.log(shit.param);
 
+console.log('---BUILDER DEMO---');
 
-ajax.getJSON('https://jsonplaceholder.typicode.com/todos/1').subscribe(console.log)
-// {userId, id, title, completed}
+const builder = (strings, ...vars) => {
+    return num => {
+        let string = '';
+        vars.forEach((v, index) => {
+            if (v.call) v = v(num);
+            string += strings[index];
+            string += v;
+        });
+        string += strings[vars.length];
+        return string;
+    };
+};
 
-
-
-// {...}
+const build = builder`TEXT: ${'COOL'} TEXT2: ${a => a*a}`;
+console.log(build(2));
