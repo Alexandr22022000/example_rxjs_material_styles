@@ -12,6 +12,8 @@ const useStyles = makeStyles((theme) => ({
     width: "400px",
     margin: "20px",
     paddingTop: "8px",
+    display: 'inline-block',
+    verticalAlign: 'top',
   },
   list: {
     overflowY: "auto",
