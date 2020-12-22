@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, Suspense} from 'react';
 import useDynamic from "../hooks/useDynamic";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
@@ -21,6 +21,9 @@ const Dynamic = props => {
     const [route, setRoute] = useState(null);
     const Component = useDynamic(route);
 
+    let One;
+    if (Component.status === 'success') One = React.lazy(() => import('../dynamicComponents/DynamicOne'));
+
     return (
         <Paper className={classes.root}>
             <Button
@@ -39,6 +42,12 @@ const Dynamic = props => {
             <h3>{Component.status}</h3>
 
             <Component onClick={() => setRoute('DynamicTwo')}/>
+
+            {Component.status === 'success' && (
+                <Suspense fallback={<h6>Loading...</h6>}>
+                    <One onClick={() => setRoute('DynamicTwo')}/>
+                </Suspense>
+            )}
         </Paper>
     );
 };
